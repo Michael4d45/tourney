@@ -40,6 +40,7 @@ func (e *Elimination) Generate(division Division) *Game {
 		team2: team2,
 		round: numRounds,
 	}
+	e.order(game)
 
 	e.seed(game, 2, numRounds-1)
 
@@ -61,6 +62,7 @@ func (e *Elimination) seed(winGame *Game, oppositeRound float64, round int) {
 			round:         round,
 			nextWinGame: winGame,
 		}
+		e.order(game1)
 		winGame.team1 = nil
 		e.seed(game1, oppositeRound+1, round-1)
 		winGame.prevGame1 = game1
@@ -74,6 +76,7 @@ func (e *Elimination) seed(winGame *Game, oppositeRound float64, round int) {
 			round:         round,
 			nextWinGame: winGame,
 		}
+		e.order(game2)
 		winGame.team2 = nil
 		e.seed(game2, oppositeRound+1, round-1)
 		winGame.prevGame2 = game2
@@ -86,8 +89,36 @@ func (e *Elimination) otherTeam(team1 *Team, roundSeed int) *Team {
 }
 
 func (e *Elimination) order(game *Game) {
+	if game.team1 == nil || game.team2 == nil {
+		return
+	}
+	var even, odd, high, low *Team
+	if game.team1.Seed % 2 == 0 {
+		even = game.team1
+		odd = game.team2
+	} else {
+		even = game.team2
+		odd = game.team1
+	}
+	if game.team1.Seed > game.team2.Seed {
+		high = game.team1
+		low = game.team2
+	} else {
+		high = game.team2
+		low = game.team1
+	}
 	switch(e.topOrder) {
 	case "even":
-		
+		game.team1 = even
+		game.team2 = odd
+	case "odd":
+		game.team1 = odd
+		game.team2 = even
+	case "high":
+		game.team1 = high
+		game.team2 = low
+	case "low":
+		game.team1 = low
+		game.team2 = high
 	}
 }

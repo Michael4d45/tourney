@@ -5,7 +5,7 @@ import (
 )
 
 type Elimination struct {
-	teamMap map[int]*Team
+	teamMap  map[int]*Team
 	topOrder string
 }
 
@@ -44,7 +44,6 @@ func (e *Elimination) Generate(division Division) *Game {
 
 	e.seed(game, 2, numRounds-1)
 
-
 	return game
 }
 
@@ -57,9 +56,9 @@ func (e *Elimination) seed(winGame *Game, oppositeRound float64, round int) {
 	team4 := e.otherTeam(winGame.team1, roundSeed)
 	if team4 != nil {
 		game1 := &Game{
-			team1:         winGame.team1,
-			team2:         team4,
-			round:         round,
+			team1:       winGame.team1,
+			team2:       team4,
+			round:       round,
 			nextWinGame: winGame,
 		}
 		e.order(game1)
@@ -71,9 +70,9 @@ func (e *Elimination) seed(winGame *Game, oppositeRound float64, round int) {
 	team3 := e.otherTeam(winGame.team2, roundSeed)
 	if team3 != nil {
 		game2 := &Game{
-			team1:         team3,
-			team2:         winGame.team2,
-			round:         round,
+			team1:       team3,
+			team2:       winGame.team2,
+			round:       round,
 			nextWinGame: winGame,
 		}
 		e.order(game2)
@@ -93,7 +92,7 @@ func (e *Elimination) order(game *Game) {
 		return
 	}
 	var even, odd, high, low *Team
-	if game.team1.Seed % 2 == 0 {
+	if game.team1.Seed%2 == 0 {
 		even = game.team1
 		odd = game.team2
 	} else {
@@ -107,7 +106,7 @@ func (e *Elimination) order(game *Game) {
 		high = game.team2
 		low = game.team1
 	}
-	switch(e.topOrder) {
+	switch e.topOrder {
 	case "even":
 		game.team1 = even
 		game.team2 = odd

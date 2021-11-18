@@ -3,15 +3,15 @@ package brackets
 import "strconv"
 
 type Game struct {
-	team1    *Team
-	team2    *Team
-	round    int
+	team1   *Team
+	team2   *Team
+	round   int
 	gameNum int
 
 	nextWinGame  *Game
 	nextLoseGame *Game
-	prevGame1     *Game
-	prevGame2     *Game
+	prevGame1    *Game
+	prevGame2    *Game
 
 	bracket string
 }

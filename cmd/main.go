@@ -11,7 +11,7 @@ func main() {
 	d := brackets.Division{
 		Teams: []*brackets.Team{},
 	}
-	for i := 1; i <= 9; i++ {
+	for i := 1; i <= 10; i++ {
 		d.Teams = append(d.Teams, &brackets.Team{
 			Seed: i,
 			// Division: &d,
@@ -23,19 +23,19 @@ func main() {
 
 	elim := brackets.Elimination{}
 
-	// e.Generate(d)
-	e_game := elim.Generate(d)
+	elim.Generate(d)
+	// e_game := elim.Generate(d)
 
-	fmt.Println(e_game.String(0))
+	// fmt.Println(e_game.String(0))
 
 	e := brackets.DoubleElimination{}
 
-	// e.Generate(d)
-	game := e.Generate(d)
+	e.Generate(d)
+	// game := e.Generate(d)
 
-	fmt.Println(game.String(0))
+	// fmt.Println(game.String(0))
 
 	elapsed := time.Since(start)
 
-	fmt.Printf("took %s", elapsed)
+	fmt.Printf("took %s\n", elapsed)
 }

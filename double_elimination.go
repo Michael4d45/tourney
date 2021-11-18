@@ -6,9 +6,9 @@ import (
 )
 
 type DoubleElimination struct {
-	gg      [][]*Game
-	ggPos  []int
-	bucket     []*Game
+	gg        [][]*Game
+	ggPos     []int
+	bucket    []*Game
 	bucketPos int
 	gameNum   int
 }
@@ -46,17 +46,16 @@ func (d *DoubleElimination) Generate(division Division) *Game {
 
 	ifFirstLost := &Game{
 		bracket: "WW",
-		round:    lRound,
-		gameNum: 10000,
+		round:   lRound,
 	}
 	lRound--
 
 	wlGame := &Game{
-		bracket: "WL",
-		round:          lRound,
+		bracket:      "WL",
+		round:        lRound,
 		nextWinGame:  ifFirstLost,
 		nextLoseGame: ifFirstLost,
-		prevGame1:     wGame,
+		prevGame1:    wGame,
 	}
 	lRound--
 
@@ -90,10 +89,10 @@ func (d *DoubleElimination) loserBracket(nextWinGame *Game, prevGame int, lRound
 
 	wGame := d.takeFirstGame(wRound)
 	fromWinnerGame := &Game{
-		round:         lRound,
+		round:       lRound,
 		nextWinGame: nextWinGame,
-		prevGame1:    wGame,
-		bracket:       "L",
+		prevGame1:   wGame,
+		bracket:     "L",
 	}
 	lRound--
 
@@ -106,9 +105,9 @@ func (d *DoubleElimination) loserBracket(nextWinGame *Game, prevGame int, lRound
 	}
 
 	losersPlayGame := &Game{
-		round:         lRound,
+		round:       lRound,
 		nextWinGame: fromWinnerGame,
-		bracket:       "L",
+		bracket:     "L",
 	}
 	lRound--
 
@@ -125,11 +124,11 @@ func (d *DoubleElimination) firstRoundGames(nextWinGame *Game, prevGame int, lRo
 	game := prevGame2
 	if prevGame1.round != 2 {
 		game := &Game{
-			round:         lRound,
+			round:       lRound,
 			nextWinGame: nextWinGame,
-			prevGame1:    prevGame1,
-			prevGame2:    prevGame2,
-			bracket:       "L",
+			prevGame1:   prevGame1,
+			prevGame2:   prevGame2,
+			bracket:     "L",
 		}
 		lRound--
 		if prevGame1.bracket == "L" {
@@ -164,8 +163,8 @@ func (d *DoubleElimination) setBucket() {
 			game1 := game.prevGame1
 			game2 := game.prevGame2
 			game3 := &Game{
-				round:      1,
-				bracket:    "L",
+				round:     1,
+				bracket:   "L",
 				prevGame1: game1,
 				prevGame2: game2,
 			}
@@ -240,13 +239,6 @@ func (d *DoubleElimination) numberGame(game *Game, round int, bracket string) st
 		d.gameNum++
 		return "fringe"
 	}
-	if game1 == "fringe" {
-		//game.prevGame1 = nil
-	}
-	if game2 == "fringe" {
-		//game.prevGame2 = nil
-	}
-
 	return "not fringe"
 }
 

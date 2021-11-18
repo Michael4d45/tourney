@@ -22,13 +22,12 @@ func main() {
 	flag.Parse()
 
 	d := brackets.Division{
-		Teams: []*brackets.Team{},
+		Teams: make([]*brackets.Team, teamCount),
 	}
-	for i := 1; i <= teamCount; i++ {
-		d.Teams = append(d.Teams, &brackets.Team{
+	for i := range d.Teams {
+		d.Teams[i] = &brackets.Team{
 			Seed: i,
-			// Division: &d,
-		})
+		}
 	}
 	fmt.Println(d.String())
 

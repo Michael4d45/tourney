@@ -27,8 +27,8 @@ func (e *Elimination) Generate(division Division) *Game {
 
 	e.teamMap = map[int]*Team{}
 
-	for _, team := range division.Teams {
-		e.teamMap[team.Seed] = team
+	for _, tt := range division.Teams {
+		e.teamMap[tt.Seed] = tt
 	}
 
 	numRounds := winnerBracketRoundCount(len(e.teamMap))

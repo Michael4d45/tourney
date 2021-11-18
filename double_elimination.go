@@ -6,11 +6,11 @@ import (
 )
 
 type DoubleElimination struct {
-	gg        [][]*Game
-	ggPos     []int
-	bucket    []*Game
-	bucketPos int
-	gameNum   int
+	gameRounds    [][]*Game
+	gameRoundsPos []int
+	bucket        []*Game
+	bucketPos     int
+	gameNum       int
 }
 
 func loserBracketRoundCount(n int) int {
@@ -30,12 +30,12 @@ func (d *DoubleElimination) Generate(division Division) *Game {
 	count := len(division.Teams)
 	lRound := loserBracketRoundCount(count)
 	wRound := wGame.round
-	d.gg = make([][]*Game, wRound)
-	d.ggPos = make([]int, wRound)
+	d.gameRounds = make([][]*Game, wRound)
+	d.gameRoundsPos = make([]int, wRound)
 	d.addGames(wGame)
 	for i := 0; i < wRound; i++ {
 		lowToHigh := (i % 2) != 0
-		sort.Slice(d.gg[i], func(i, j int) bool {
+		sort.Slice(d.gameRounds[i], func(i, j int) bool {
 			if lowToHigh {
 				return i < j
 			} else {
@@ -153,8 +153,8 @@ func (d *DoubleElimination) firstRoundGames(nextWinGame *Game, prevGame int, lRo
 
 func (d *DoubleElimination) setBucket() {
 	round := 2
-	for i := 0; i < len(d.gg[round-1]); i++ {
-		game := d.gg[round-1][i]
+	for i := 0; i < len(d.gameRounds[round-1]); i++ {
+		game := d.gameRounds[round-1][i]
 		if game.prevGame1 != nil && game.prevGame2 == nil {
 			d.bucket = append(d.bucket, game.prevGame1)
 		} else if game.prevGame1 == nil && game.prevGame2 != nil {
@@ -256,7 +256,7 @@ func (d *DoubleElimination) addGame(game *Game) {
 		return
 	}
 	game.bracket = "W"
-	d.gg[game.round-1] = append(d.gg[game.round-1], game)
+	d.gameRounds[game.round-1] = append(d.gameRounds[game.round-1], game)
 }
 
 func (d *DoubleElimination) takeFirstBucket() *Game {
@@ -266,7 +266,7 @@ func (d *DoubleElimination) takeFirstBucket() *Game {
 }
 
 func (d *DoubleElimination) takeFirstGame(round int) *Game {
-	game := d.gg[round-1][d.ggPos[round-1]]
-	d.ggPos[round-1]++
+	game := d.gameRounds[round-1][d.gameRoundsPos[round-1]]
+	d.gameRoundsPos[round-1]++
 	return game
 }

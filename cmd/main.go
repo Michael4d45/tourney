@@ -29,8 +29,9 @@ func main() {
 			Seed: i,
 		}
 	}
-	fmt.Println(d.String())
-
+	if printBracket {
+		fmt.Println(d.String())
+	}
 	start := time.Now()
 
 	var game *brackets.Game

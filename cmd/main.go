@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"time"
 
@@ -8,34 +9,48 @@ import (
 )
 
 func main() {
+	var printTime bool
+	var bracket string
+	var printBracket bool
+	var teamCount int
+
+	flag.BoolVar(&printTime, "t", false, "output time")
+	flag.BoolVar(&printBracket, "p", false, "output bracket")
+	flag.StringVar(&bracket, "b", "double", "Type of bracket; double or single")
+	flag.IntVar(&teamCount, "c", 10, "Number of teams")
+
+	flag.Parse()
+
 	d := brackets.Division{
 		Teams: []*brackets.Team{},
 	}
-	for i := 1; i <= 10; i++ {
+	for i := 1; i <= teamCount; i++ {
 		d.Teams = append(d.Teams, &brackets.Team{
 			Seed: i,
 			// Division: &d,
 		})
 	}
 	fmt.Println(d.String())
-	
+
 	start := time.Now()
 
-	elim := brackets.Elimination{}
+	var game *brackets.Game
 
-	elim.Generate(d)
-	// e_game := elim.Generate(d)
+	switch bracket {
+	case "single":
+		e := brackets.Elimination{}
+		game = e.Generate(d)
+	case "double":
+		e := brackets.DoubleElimination{}
+		game = e.Generate(d)
+	}
 
-	// fmt.Println(e_game.String(0))
+	if printBracket {
+		fmt.Println(game.String(0))
+	}
 
-	e := brackets.DoubleElimination{}
-
-	e.Generate(d)
-	// game := e.Generate(d)
-
-	// fmt.Println(game.String(0))
-
-	elapsed := time.Since(start)
-
-	fmt.Printf("took %s\n", elapsed)
+	if printTime {
+		elapsed := time.Since(start)
+		fmt.Printf("took %s\n", elapsed)
+	}
 }

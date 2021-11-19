@@ -1,4 +1,4 @@
-module github.com/michael4d45/brackets
+module github.com/michael4d45/tourney
 
 go 1.17
 

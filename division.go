@@ -1,22 +1,14 @@
-package brackets
+package tourney
 
 type Division struct {
 	Teams []*Team
 }
 
-func (d *Division) String() string {
-	s := "division: "
-	s += "\n"
-	s += "\tteams: ["
-
-	s += "\n"
-	for i := 0; i < len(d.Teams); i++ {
-		s += "\t\t"
-		s += d.Teams[i].String()
-		s += "\n"
+func (d *Division) MakeTeams(num int) {
+	d.Teams = make([]*Team, 50)
+	for i := range d.Teams {
+		d.Teams[i] = &Team{
+			Seed: i + 1,
+		}
 	}
-	s += "\t]"
-
-	s += "\n"
-	return s
 }

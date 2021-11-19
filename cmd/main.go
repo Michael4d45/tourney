@@ -5,7 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/michael4d45/brackets"
+	"github.com/michael4d45/tourney"
+	"github.com/michael4d45/tourney/elimination/double"
+	"github.com/michael4d45/tourney/elimination/single"
+
+	"github.com/michael4d45/tourney/format/strings"
 )
 
 func main() {
@@ -21,32 +25,27 @@ func main() {
 
 	flag.Parse()
 
-	d := brackets.Division{
-		Teams: make([]*brackets.Team, teamCount),
-	}
-	for i := range d.Teams {
-		d.Teams[i] = &brackets.Team{
-			Seed: i,
-		}
-	}
+	d := tourney.Division{}
+	d.MakeTeams(teamCount)
+	
 	if printBracket {
-		fmt.Println(d.String())
+		fmt.Println(strings.Division(d))
 	}
 	start := time.Now()
 
-	var game *brackets.Game
-
 	switch bracket {
 	case "single":
-		e := brackets.Elimination{}
-		game = e.Generate(d)
+		gen := single.Elimination{}
+		game := gen.Generate(d)
+		if printBracket {
+			fmt.Println(strings.SingleGame(*game, 0))
+		}
 	case "double":
-		e := brackets.DoubleElimination{}
-		game = e.Generate(d)
-	}
-
-	if printBracket {
-		fmt.Println(game.String(0))
+		gen := double.Elimination{}
+		game := gen.Generate(d)
+		if printBracket {
+			fmt.Println(strings.DoubleGame(*game, 0))
+		}
 	}
 
 	if printTime {

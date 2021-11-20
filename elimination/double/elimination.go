@@ -2,18 +2,18 @@ package double
 
 import (
 	"math"
-	//"sort"
+	"sort"
 
 	"github.com/michael4d45/tourney"
-	"github.com/michael4d45/tourney/elimination"
+	"github.com/michael4d45/tourney/elimination/single"
 )
 
 type Elimination struct {
-	gameRounds    [][]*Game
-	gameRoundsPos []int
-	bucket        []*Game
-	bucketPos     int
-	gameNum       int
+	rounds    [][]*Game
+	roundsPos []int
+	bucket    []*Game
+	bucketPos int
+	gameNum   int
 }
 
 func loserBracketRoundCount(n int) int {
@@ -23,8 +23,16 @@ func loserBracketRoundCount(n int) int {
 	return int(o) + int(p)
 }
 
+func shouldNumberTwice(count int) bool {
+	n := math.Floor(math.Log2(float64(count)))
+	o := math.Pow(2, n)
+	p := o - (o / 4)
+	c := float64(count)
+	return (c <= o) && (c > p)
+}
+
 func (e *Elimination) Generate(division tourney.Division) *Game {
-	elim := elimination.Elimination{}
+	elim := single.Elimination{}
 	eGame := elim.Generate(division)
 	if eGame == nil {
 		return nil
@@ -47,7 +55,9 @@ func (e *Elimination) Generate(division tourney.Division) *Game {
 	}
 	lRound--
 
-	wGame, gamesMap := copy(eGame, map[*elimination.Game]*Game{}, wlGame)
+	wGame, gamesMap := copy(eGame, map[*single.Game]*Game{})
+
+	wGame.NextWinGame = wlGame
 
 	ifFirstLost.PrevGame1 = wlGame
 	ifFirstLost.PrevGame2 = wlGame
@@ -55,40 +65,48 @@ func (e *Elimination) Generate(division tourney.Division) *Game {
 	wlGame.PrevGame1 = wGame
 
 	wRound := wGame.Round
-	e.gameRounds = make([][]*Game, wRound)
-	e.gameRoundsPos = make([]int, wRound)
+	e.rounds = make([][]*Game, wRound)
+	e.roundsPos = make([]int, wRound)
 
 	for _, gg := range gamesMap {
-		gg.Bracket = "W"
-		e.gameRounds[gg.Round-1] = append(e.gameRounds[gg.Round-1], gg)
+		e.rounds[gg.Round-1] = append(e.rounds[gg.Round-1], gg)
 	}
-	
-	// for i := 0; i < wRound; i++ {
-	// 	lowToHigh := (i % 2) != 0
-	// 	sort.Slice(e.gameRounds[i], func(i, j int) bool {
-	// 		if lowToHigh {
-	// 			return i < j
-	// 		} else {
-	// 			return j < i
-	// 		}
-	// 	})
-	// }
 
 	if wRound > 1 {
-		e.bucket = []*Game{}
+		sort.Slice(e.rounds[1], func(j, k int) bool {
+			return e.rounds[1][j].GameNum < e.rounds[1][k].GameNum
+		})
+		e.bucket = make([]*Game, len(e.rounds[1]))
 		e.setBucket()
+
+		for i, rr := range e.rounds {
+			lowToHigh := (i % 2) != 0
+			sort.Slice(rr, func(j, k int) bool {
+				if lowToHigh {
+					return rr[k].GameNum < rr[j].GameNum
+				} else {
+					return rr[j].GameNum < rr[k].GameNum
+				}
+			})
+		}
 
 		e.loserBracket(wlGame, 2, lRound, wRound)
 	}
 
 	lGame := wlGame.PrevGame2
 
-	n := math.Log2(float64(count))
-	o := int(math.Pow(2, n))
-	p := o - (o / 4)
-	numberTwice := (count <= o) && (count > p)
+	numberTwice := shouldNumberTwice(count)
 
-	e.numberGames(ifFirstLost, wlGame, wGame, lGame, numberTwice)
+	for _, gg := range gamesMap {
+		gg.Bracket = "W"
+		gg.GameNum = 0
+	}
+
+	e.numberGames(wGame, lGame, numberTwice)
+	wlGame.GameNum = e.gameNum
+	e.gameNum++
+	ifFirstLost.GameNum = e.gameNum
+	e.gameNum++
 
 	return ifFirstLost
 }
@@ -132,7 +150,7 @@ func (e *Elimination) firstRoundGames(nextWinGame *Game, prevGame int, lRound in
 	prevGame1 := e.takeFirstBucket()
 	prevGame2 := e.takeFirstGame(2)
 	game := prevGame2
-	
+
 	if prevGame1.Round != 2 {
 		game = &Game{
 			Round:       lRound,
@@ -163,12 +181,11 @@ func (e *Elimination) firstRoundGames(nextWinGame *Game, prevGame int, lRound in
 }
 
 func (e *Elimination) setBucket() {
-	round := 2
-	for _, game := range e.gameRounds[round-1] {
+	for i, game := range e.rounds[1] {
 		if game.PrevGame1 != nil && game.PrevGame2 == nil {
-			e.bucket = append(e.bucket, game.PrevGame1)
+			e.bucket[i] = game.PrevGame1
 		} else if game.PrevGame1 == nil && game.PrevGame2 != nil {
-			e.bucket = append(e.bucket, game.PrevGame2)
+			e.bucket[i] = game.PrevGame2
 		} else if game.PrevGame1 != nil && game.PrevGame2 != nil {
 			game1 := game.PrevGame1
 			game2 := game.PrevGame2
@@ -178,50 +195,61 @@ func (e *Elimination) setBucket() {
 				PrevGame1: game1,
 				PrevGame2: game2,
 			}
-			e.bucket = append(e.bucket, game3)
+			e.bucket[i] = game3
 			game1.NextLoseGame = game3
 			game2.NextLoseGame = game3
 		} else {
 			game.Bracket = "swap"
-			e.bucket = append(e.bucket, game)
+			e.bucket[i] = game
 		}
 	}
 	jStart := len(e.bucket) - 1
 	for i, game1 := range e.bucket {
 		if game1.Bracket == "swap" {
+			game1.Bracket = "W"
+
 			for j := jStart; j > i; j-- {
 				game2 := e.bucket[j]
 				if game2.Bracket == "swap" {
+					game2.Bracket = "W"
+
 					e.bucket[i] = game2
 					e.bucket[j] = game1
-					game2.Bracket = "W"
-					game1.Bracket = "W"
 					jStart = j
 					break
 				}
 			}
-			game1.Bracket = "W"
 		}
 	}
 }
 
-func (e *Elimination) numberGames(lastGame *Game, wlGame *Game, wGame *Game, lGame *Game, numberTwice bool) {
+func (e *Elimination) numberGames(wGame *Game, lGame *Game, numberTwice bool) {
 	wRound := 1
 	lRound := 1
 
 	e.gameNum = 1
+
 	e.numberGame(wGame, wRound, "W")
 	wRound++
+
 	e.numberGame(wGame, wRound, "W")
 	wRound++
+
 	e.numberGame(lGame, lRound, "L")
 	lRound++
+
 	if numberTwice {
 		e.numberGame(lGame, lRound, "L")
 		lRound++
 	}
 
-	for ; e.numberGame(wGame, wRound, "W") == "not fringe"; wRound++ {
+	for {
+		checkFringe := e.numberGame(wGame, wRound, "W")
+		wRound++
+
+		if checkFringe != "not fringe" {
+			break
+		}
 
 		e.numberGame(lGame, lRound, "L")
 		lRound++
@@ -229,13 +257,14 @@ func (e *Elimination) numberGames(lastGame *Game, wlGame *Game, wGame *Game, lGa
 		e.numberGame(lGame, lRound, "L")
 		lRound++
 	}
-	for ; e.numberGame(lGame, lRound, "L") == "not fringe"; lRound++ {
 
+	for {
+		checkFringe := e.numberGame(lGame, lRound, "L")
+		lRound++
+		if checkFringe != "not fringe" {
+			break
+		}
 	}
-	wlGame.GameNum = e.gameNum
-	e.gameNum++
-	lastGame.GameNum = e.gameNum
-	e.gameNum++
 }
 
 func (e *Elimination) numberGame(game *Game, round int, bracket string) string {
@@ -259,7 +288,7 @@ func (e *Elimination) takeFirstBucket() *Game {
 }
 
 func (e *Elimination) takeFirstGame(round int) *Game {
-	game := e.gameRounds[round-1][e.gameRoundsPos[round-1]]
-	e.gameRoundsPos[round-1]++
+	game := e.rounds[round-1][e.roundsPos[round-1]]
+	e.roundsPos[round-1]++
 	return game
 }

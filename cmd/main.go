@@ -44,7 +44,7 @@ func main() {
 		gen := double.Elimination{}
 		game := gen.Generate(d)
 		if printBracket {
-			fmt.Println(strings.DoubleGame(*game, 0))
+			fmt.Println(strings.DoubleGame(*game, 0, map[double.Game]struct{}{}))
 		}
 	}
 

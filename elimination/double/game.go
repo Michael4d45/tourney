@@ -2,7 +2,7 @@ package double
 
 import (
 	"github.com/michael4d45/tourney"
-	"github.com/michael4d45/tourney/elimination"
+	"github.com/michael4d45/tourney/elimination/single"
 )
 
 type Game struct {
@@ -20,7 +20,7 @@ type Game struct {
 	Bracket string
 }
 
-func copy(g *elimination.Game, games map[*elimination.Game]*Game, prevGame *Game) (*Game, map[*elimination.Game]*Game) {
+func copy(g *single.Game, games map[*single.Game]*Game) (*Game, map[*single.Game]*Game) {
 	if g == nil {
 		return nil, games
 	}
@@ -29,14 +29,15 @@ func copy(g *elimination.Game, games map[*elimination.Game]*Game, prevGame *Game
 		return game, games
 	}
 	game = &Game{
-		Team1:       g.Team1,
-		Team2:       g.Team2,
-		Round:       g.Round,
-		NextWinGame: prevGame,
+		Team1:   g.Team1,
+		Team2:   g.Team2,
+		Round:   g.Round,
+		GameNum: g.GameNum,
 	}
 	games[g] = game
-	game.PrevGame1, games = copy(g.PrevGame1, games, game)
-	game.PrevGame2, games = copy(g.PrevGame2, games, game)
+	game.PrevGame1, games = copy(g.PrevGame1, games)
+	game.PrevGame2, games = copy(g.PrevGame2, games)
+	game.NextWinGame, games = copy(g.NextGame, games)
 
 	return game, games
 }

@@ -31,13 +31,23 @@ func SingleGame(g single.Game, tabNum int) string {
 	return s
 }
 
-func DoubleGame(g double.Game, tabNum int) string {
+func shortDoubleGame(g double.Game) string {
+	return "Game " + strconv.Itoa(g.GameNum) + " : " + g.Bracket + "\n"
+}
+
+func DoubleGame(g double.Game, tabNum int, games map[double.Game]struct{}) string {
+	_, exists := games[g]
+	if exists {
+		return shortDoubleGame(g)
+	}
+	games[g] = struct{}{}
+
 	tabs := ""
 	for i := 0; i < tabNum; i++ {
 		tabs += "\t"
 	}
-	s := "\n" + tabs + "Game " + strconv.Itoa(g.GameNum) + "\n"
-	s += tabs + "bracket: " + g.Bracket + "\n"
+
+	s := "\n" + tabs + "Game " + strconv.Itoa(g.GameNum) + " : " + g.Bracket + "\n"
 	s += tabs + "round: " + strconv.Itoa(g.Round) + "\n"
 	if g.Team1 != nil {
 		s += tabs + "team1: " + Team(*g.Team1) + "\n"
@@ -47,17 +57,17 @@ func DoubleGame(g double.Game, tabNum int) string {
 	}
 
 	if g.NextLoseGame != nil {
-		s += tabs + "next lose: " + strconv.Itoa(g.NextLoseGame.GameNum) + "\n"
+		s += tabs + "next lose: " + shortDoubleGame(*g.NextLoseGame)
 	}
 	if g.NextWinGame != nil {
-		s += tabs + "next win: " + strconv.Itoa(g.NextWinGame.GameNum) + "\n"
+		s += tabs + "next win: " + shortDoubleGame(*g.NextWinGame)
 	}
 
 	if g.PrevGame1 != nil {
-		s += tabs + "prev1: " + DoubleGame(*g.PrevGame1, tabNum+1) + "\n"
+		s += tabs + "prev1: " + DoubleGame(*g.PrevGame1, tabNum+1, games) + "\n"
 	}
 	if g.PrevGame2 != nil {
-		s += tabs + "prev2: " + DoubleGame(*g.PrevGame2, tabNum+1) + "\n"
+		s += tabs + "prev2: " + DoubleGame(*g.PrevGame2, tabNum+1, games) + "\n"
 	}
 	s += "\n"
 	return s

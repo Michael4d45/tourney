@@ -9,7 +9,7 @@ type Game struct {
 	Team2 *tourney.Team
 	Round int
 
-	GameNum int
+	Order int
 
 	NextGame  *Game
 	PrevGame1 *Game

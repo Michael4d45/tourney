@@ -12,7 +12,7 @@ func SingleGame(g single.Game, tabNum int) string {
 	for i := 0; i < tabNum; i++ {
 		tabs += "\t"
 	}
-	s := "\n" + tabs + "Game " + strconv.Itoa(g.GameNum) + "\n"
+	s := "\n" + tabs + "Game " + strconv.Itoa(g.Order) + "\n"
 	s += tabs + "round: " + strconv.Itoa(g.Round) + "\n"
 	if g.Team1 != nil {
 		s += tabs + "team1: " + Team(*g.Team1) + "\n"
@@ -32,7 +32,7 @@ func SingleGame(g single.Game, tabNum int) string {
 }
 
 func shortDoubleGame(g double.Game) string {
-	return "Game " + strconv.Itoa(g.GameNum) + " : " + g.Bracket + "\n"
+	return "Game " + strconv.Itoa(g.Order) + " : " + g.Bracket + "\n"
 }
 
 func DoubleGame(g double.Game, tabNum int, games map[double.Game]struct{}) string {
@@ -47,7 +47,7 @@ func DoubleGame(g double.Game, tabNum int, games map[double.Game]struct{}) strin
 		tabs += "\t"
 	}
 
-	s := "\n" + tabs + "Game " + strconv.Itoa(g.GameNum) + " : " + g.Bracket + "\n"
+	s := "\n" + tabs + "Game " + strconv.Itoa(g.Order) + " : " + g.Bracket + "\n"
 	s += tabs + "round: " + strconv.Itoa(g.Round) + "\n"
 	if g.Team1 != nil {
 		s += tabs + "team1: " + Team(*g.Team1) + "\n"

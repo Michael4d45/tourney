@@ -10,7 +10,7 @@ type Game struct {
 	Team2 *tourney.Team
 	Round int
 
-	GameNum int
+	Order int
 
 	NextWinGame  *Game
 	NextLoseGame *Game
@@ -29,10 +29,10 @@ func copy(g *single.Game, games map[*single.Game]*Game) (*Game, map[*single.Game
 		return game, games
 	}
 	game = &Game{
-		Team1:   g.Team1,
-		Team2:   g.Team2,
-		Round:   g.Round,
-		GameNum: g.GameNum,
+		Team1: g.Team1,
+		Team2: g.Team2,
+		Round: g.Round,
+		Order: g.Order,
 	}
 	games[g] = game
 	game.PrevGame1, games = copy(g.PrevGame1, games)

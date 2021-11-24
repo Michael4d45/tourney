@@ -9,7 +9,7 @@ import (
 type Elimination struct {
 	teamMap  map[int]*tourney.Team
 	topOrder string
-	gameNum int
+	Order    int
 }
 
 func roundCount(len int) int {
@@ -61,9 +61,9 @@ func (e *Elimination) seed(winGame *Game, oppositeRound float64, round int) {
 	team4 := e.otherTeam(winGame.Team1, roundSeed)
 	if team4 != nil {
 		game1 := &Game{
-			Team1:    winGame.Team1,
-			Team2:    team4,
-			Round:    round,
+			Team1: winGame.Team1,
+			Team2: team4,
+			Round: round,
 		}
 		e.order(game1)
 		winGame.Team1 = nil
@@ -74,9 +74,9 @@ func (e *Elimination) seed(winGame *Game, oppositeRound float64, round int) {
 	team3 := e.otherTeam(winGame.Team2, roundSeed)
 	if team3 != nil {
 		game2 := &Game{
-			Team1:    team3,
-			Team2:    winGame.Team2,
-			Round:    round,
+			Team1: team3,
+			Team2: winGame.Team2,
+			Round: round,
 		}
 		e.order(game2)
 		winGame.Team2 = nil
@@ -127,19 +127,20 @@ func (e *Elimination) order(game *Game) {
 
 func (e *Elimination) numberGames(game *Game) {
 	round := 1
-	e.gameNum = 1
-	for ;e.numberGame(game, round) == "not fringe";round++ {}
+	e.Order = 1
+	for ; e.numberGame(game, round) == "not fringe"; round++ {
+	}
 }
 
 func (e *Elimination) numberGame(game *Game, round int) string {
-	if (game == nil || game.GameNum != 0) {
+	if game == nil || game.Order != 0 {
 		return "null"
 	}
 	game1 := e.numberGame(game.PrevGame1, round)
 	game2 := e.numberGame(game.PrevGame2, round)
 	if game1 == "null" && game2 == "null" && game.Round == round {
-		game.GameNum = e.gameNum
-		e.gameNum++
+		game.Order = e.Order
+		e.Order++
 		return "fringe"
 	}
 

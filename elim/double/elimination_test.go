@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/michael4d45/tourney"
-	"github.com/michael4d45/tourney/elimination/double"
+	"github.com/michael4d45/tourney/elim/double"
 )
 
 func TestDoubleElimination(t *testing.T) {

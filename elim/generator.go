@@ -1,4 +1,4 @@
-package elimination
+package elim
 
 import (
 	"math"
@@ -18,14 +18,19 @@ type Game interface {
 	Order() int
 	Round() int
 
-	SetPrevGame1(*Game)
-	SetPrevGame2(*Game)
+	SetPrevGame1(Game)
+	SetPrevGame2(Game)
+
+	Seed1(*generator, *tourney.Team, *tourney.Team, int, float64)
+	Seed2(*generator, *tourney.Team, *tourney.Team, int, float64)
 
 	PrevGame1() *Game
 	PrevGame2() *Game
+
+	NewGame() Game
 }
 
-type Generator struct {
+type generator struct {
 	teamMap  map[int]*tourney.Team
 	topOrder string
 	Order    int
@@ -40,8 +45,8 @@ func roundCount(len int) int {
 	return int(p + 1)
 }
 
-func Generate(d tourney.Division, g *Game) {
-	e := Generator{}
+func Generate(d tourney.Division, g Game) {
+	e := generator{}
 	e.topOrder = "odd" // [even/odd],[lower/higher],random
 
 	e.teamMap = make(map[int]*tourney.Team)
@@ -54,60 +59,44 @@ func Generate(d tourney.Division, g *Game) {
 	team1 := e.teamMap[1]
 	team2 := e.otherTeam(team1, 3)
 
-	(*g).SetTeam1(team1)
-	(*g).SetTeam2(team2)
-	(*g).SetRound(numRounds)
+	g.SetRound(numRounds)
 
-	e.order(g)
+	team1, team2 = e.teamOrder(team1, team2)
+	g.SetTeam1(team1)
+	g.SetTeam2(team2)
 
 	e.seed(g, 2, numRounds-1)
 
-	e.numberGames(g)
+	e.numberGames(&g)
 }
-func (e *Generator) seed(winGame *Game, oppositeRound float64, round int) {
+
+func (e *generator) seed(winGame Game, oppositeRound float64, round int) {
 	if round < 1 {
 		return
 	}
 	roundSeed := int(math.Pow(2, oppositeRound)) + 1
 
-	team1, team2 := (*winGame).Teams()
+	team1, team2 := winGame.Teams()
 
 	team4 := e.otherTeam(team1, roundSeed)
 	if team4 != nil {
-		var game1 Game
-		game1.SetTeam1(team1)
-		game1.SetTeam2(team4)
-		game1.SetRound(round)
-
-		e.order(&game1)
-		(*winGame).SetTeam1(nil)
-		e.seed(&game1, oppositeRound+1, round-1)
-		(*winGame).SetPrevGame1(&game1)
+		winGame.Seed1(e, team1, team4, round, oppositeRound)
 	}
 
 	team3 := e.otherTeam(team2, roundSeed)
 	if team3 != nil {
-		var game2 Game
-		game2.SetTeam1(team3)
-		game2.SetTeam2(team2)
-		game2.SetRound(round)
-		
-		e.order(&game2)
-		(*winGame).SetTeam2(nil)
-		e.seed(&game2, oppositeRound+1, round-1)
-		(*winGame).SetPrevGame2(&game2)
+		winGame.Seed2(e, team3, team2, round, oppositeRound)
 	}
 }
 
-func (e *Generator) otherTeam(team1 *tourney.Team, roundSeed int) *tourney.Team {
+func (e *generator) otherTeam(team1 *tourney.Team, roundSeed int) *tourney.Team {
 	seed := roundSeed - team1.Seed
 	return e.teamMap[seed]
 }
 
-func (e *Generator) order(game *Game) {
-	team1, team2 := (*game).Teams()
+func (e *generator) teamOrder(team1 *tourney.Team, team2 *tourney.Team) (*tourney.Team, *tourney.Team) {
 	if team1 == nil || team2 == nil {
-		return
+		return team1, team2
 	}
 	var even, odd, high, low *tourney.Team
 	if team1.Seed%2 == 0 {
@@ -126,21 +115,19 @@ func (e *Generator) order(game *Game) {
 	}
 	switch e.topOrder {
 	case "even":
-		(*game).SetTeam1(even)
-		(*game).SetTeam2(odd)
+		return even, odd
 	case "odd":
-		(*game).SetTeam1(odd)
-		(*game).SetTeam2(even)
+		return odd, even
 	case "high":
-		(*game).SetTeam1(high)
-		(*game).SetTeam2(low)
+		return high, low
 	case "low":
-		(*game).SetTeam1(low)
-		(*game).SetTeam2(high)
+		return low, high
+	default:
+		return team1, team2
 	}
 }
 
-func (e *Generator) numberGames(game *Game) {
+func (e *generator) numberGames(game *Game) {
 	round := 1
 	e.Order = 1
 	for {
@@ -152,8 +139,21 @@ func (e *Generator) numberGames(game *Game) {
 	}
 }
 
-func (e *Generator) numberGame(game *Game, round int) string {
-	if game == nil || (*game).Order() != 0 {
+func IsElimNil(i Game) bool {
+	var ret bool
+	switch i.(type) {
+	case *DoubleGame:
+		v := i.(*DoubleGame)
+		ret = v == nil
+	case *SingleGame:
+		v := i.(*SingleGame)
+		ret = v == nil
+	}
+	return ret
+}
+
+func (e *generator) numberGame(game *Game, round int) string {
+	if IsElimNil(*game) || (*game).Order() != 0 {
 		return "null"
 	}
 	game1 := e.numberGame((*game).PrevGame1(), round)

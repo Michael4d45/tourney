@@ -6,8 +6,10 @@ import (
 	"time"
 
 	"github.com/michael4d45/tourney"
-	"github.com/michael4d45/tourney/elimination/double"
-	"github.com/michael4d45/tourney/elimination/single"
+	"github.com/michael4d45/tourney/elim/double"
+	"github.com/michael4d45/tourney/elim/single"
+
+	"github.com/michael4d45/tourney/elim"
 
 	"github.com/michael4d45/tourney/format/strings"
 )
@@ -45,6 +47,11 @@ func main() {
 		game := gen.Generate(d)
 		if printBracket {
 			fmt.Println(strings.DoubleGame(*game, 0, map[double.Game]struct{}{}))
+		}
+	case "elim":
+		game := elim.GenerateDouble(d)
+		if printBracket {
+			fmt.Println(strings.DoublesGame(game, 0, map[elim.Game]struct{}{}))
 		}
 	}
 

@@ -2,7 +2,7 @@ package double
 
 import (
 	"github.com/michael4d45/tourney"
-	"github.com/michael4d45/tourney/elimination/single"
+	"github.com/michael4d45/tourney/elim/single"
 )
 
 type Game struct {

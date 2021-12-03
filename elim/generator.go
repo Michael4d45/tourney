@@ -11,11 +11,11 @@ func Generate(division tourney.Division, topOrder string, elimType string) *Game
 		s := singleGenerator{}
 		g := s.generateSingle(division, topOrder)
 
-		if elimType == "double" {
+		if elimType == "double" && g != nil {
 			l := loserGen{}
 			g = l.generateLoser(g, len(division.Teams), s.rounds)
 		}
-		
+
 		return g
 	}
 

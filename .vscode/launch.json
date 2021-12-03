@@ -11,7 +11,7 @@
             "mode": "auto",
             "program": "cmd",
             "args": [
-                "-c", "9",
+                "-c", "5",
                 "-b", "double"
             ]
         },

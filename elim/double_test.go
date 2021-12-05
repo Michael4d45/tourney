@@ -9,13 +9,13 @@ import (
 
 func TestDouble(t *testing.T) {
 	d := tourney.Division{}
-	d.MakeTeams(5)
+	d.MakeTeams(5000000)
 
 	topOrder := "odd"
 	elimType := "double"
 
-	game := elim.Generate(d, topOrder, elimType)
-	if game == nil {
+	games := elim.Generate(d, topOrder, elimType)
+	if games.FinalGame == nil {
 		t.Error("Did not return game for double")
 	}
 }

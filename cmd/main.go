@@ -34,9 +34,9 @@ func main() {
 	}
 	start := time.Now()
 
-	game := elim.Generate(d, topOrder, bracket)
+	games := elim.Generate(d, topOrder, bracket)
 	if printBracket {
-		fmt.Println(strings.ElimGame(*game))
+		fmt.Println(strings.Elim(games))
 	}
 
 	if printTime {

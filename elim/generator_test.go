@@ -14,8 +14,8 @@ func TestTopOrder(t *testing.T) {
 	orders := []string{"odd", "even", "high", "low"}
 
 	for _, topOrder := range orders {
-		game := elim.Generate(d, topOrder, "double")
-		if game == nil {
+		games := elim.Generate(d, topOrder, "double")
+		if games.FinalGame == nil {
 			t.Error("Did not return game for ", topOrder)
 		}
 	}
@@ -26,13 +26,12 @@ func TestWorkingTeams(t *testing.T) {
 
 	teams := []int{2, 3, 4, 100}
 
-
 	for _, teamsCount := range teams {
 		d := tourney.Division{}
 		d.MakeTeams(teamsCount)
 
-		game := elim.Generate(d, topOrder, "double")
-		if game == nil {
+		games := elim.Generate(d, topOrder, "double")
+		if games.FinalGame == nil {
 			t.Error("Did not return game for ", teamsCount)
 		}
 	}
@@ -47,8 +46,8 @@ func TestFailingTeams(t *testing.T) {
 		d := tourney.Division{}
 		d.MakeTeams(teamsCount)
 
-		game := elim.Generate(d, topOrder, "double")
-		if game != nil {
+		games := elim.Generate(d, topOrder, "double")
+		if games.FinalGame == nil {
 			t.Error("Did return game for ", teamsCount)
 		}
 	}

@@ -37,7 +37,8 @@ func shouldNumberTwice(count int) bool {
 func (l *loserGen) generateLoser(game *Game, teamCount int, rounds [][]*Game) *Game {
 	l.rounds = rounds
 
-	lRound := loserBracketRoundCount(teamCount)
+	lRounds := loserBracketRoundCount(teamCount)
+	lRound := lRounds
 
 	// Last game if winner of wlGame lost.
 	ifFirstLost := &Game{

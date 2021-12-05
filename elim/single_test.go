@@ -14,8 +14,8 @@ func TestSingle(t *testing.T) {
 	topOrder := "odd"
 	elimType := "single"
 
-	game := elim.Generate(d, topOrder, elimType)
-	if game == nil {
+	games := elim.Generate(d, topOrder, elimType)
+	if games.FinalGame == nil {
 		t.Error("Did not return game for single")
 	}
 }

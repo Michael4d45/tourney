@@ -6,8 +6,8 @@ import (
 	"github.com/michael4d45/tourney/elim"
 )
 
-func ElimGame(g elim.Game) string {
-	return elimGame(g, 0, make(map[elim.Game]struct{}))
+func Elim(g elim.Games) string {
+	return elimGame(*g.FinalGame, 0, make(map[elim.Game]struct{}))
 }
 
 func shortGame(g elim.Game) string {

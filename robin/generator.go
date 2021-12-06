@@ -7,15 +7,11 @@ type Games struct {
 }
 
 func Generate(d tourney.Division) Games {
-	var numRounds int
-	var numGames int
-	if len(d.Teams)%2 == 0 {
-		numRounds = len(d.Teams) - 1
-		numGames = len(d.Teams) / 2
-	} else {
-		numRounds = len(d.Teams)
-		numGames = (len(d.Teams) - 1) / 2
+	if len(d.Teams)%2 != 0 {
+		d.Teams = append([]*tourney.Team{nil}, d.Teams...)
 	}
+	numRounds := len(d.Teams) - 1
+	numGames := len(d.Teams) / 2
 	games := Games{
 		Rounds: make([][]*Game, numRounds),
 	}

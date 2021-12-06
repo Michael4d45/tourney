@@ -7,6 +7,7 @@ import (
 
 	"github.com/michael4d45/tourney"
 	"github.com/michael4d45/tourney/elim"
+	"github.com/michael4d45/tourney/robin"
 
 	"github.com/michael4d45/tourney/format/strings"
 )
@@ -34,9 +35,17 @@ func main() {
 	}
 	start := time.Now()
 
-	games := elim.Generate(d, topOrder, bracket)
-	if printBracket {
-		fmt.Println(strings.Elim(games))
+	if bracket == "double" || bracket == "single" {
+		games := elim.Generate(d, topOrder, bracket)
+		if printBracket {
+			fmt.Println(strings.Elim(games))
+		}
+	}
+	if bracket == "robin" {
+		games := robin.Generate(d)
+		if printBracket {
+			fmt.Println(strings.Robin(games))
+		}
 	}
 
 	if printTime {

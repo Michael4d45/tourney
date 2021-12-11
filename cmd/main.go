@@ -18,12 +18,14 @@ func main() {
 	var printBracket bool
 	var teamCount int
 	var topOrder string
+	var printAnalytics bool
 
 	flag.BoolVar(&printTime, "t", false, "output time")
 	flag.BoolVar(&printBracket, "p", false, "output bracket")
 	flag.StringVar(&bracket, "b", "double", "Type of bracket; double or single")
 	flag.IntVar(&teamCount, "c", 10, "Number of teams")
 	flag.StringVar(&topOrder, "o", "odd", "How the games should print out")
+	flag.BoolVar(&printAnalytics, "a", false, "output numbers")
 
 	flag.Parse()
 
@@ -40,11 +42,28 @@ func main() {
 		if printBracket {
 			fmt.Println(strings.Elim(games))
 		}
+		if printAnalytics {
+			rounds := elim.Rounds(games.FinalGame)
+			fmt.Println(len(rounds), "rounds")
+			var numGames int
+			for _, rr := range rounds {
+				numGames += len(rr)
+			}
+			fmt.Println(numGames, "games")
+		}
 	}
 	if bracket == "robin" {
 		games := robin.Generate(d)
 		if printBracket {
 			fmt.Println(strings.Robin(games))
+		}
+		if printAnalytics {
+			fmt.Println(len(games.Rounds), "rounds")
+			var numGames int
+			for _, rr := range games.Rounds {
+				numGames += len(rr)
+			}
+			fmt.Println(numGames, "games")
 		}
 	}
 
